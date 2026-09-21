@@ -11,7 +11,7 @@
  *     -> '/sw.js' (when BASE_URL is '/')
  *     -> '/AR-web-app/sw.js' (when BASE_URL is '/AR-web-app/')
  */
-export function resolveAssetUrl(path: string): string {
+export function resolveAssetUrl(path: string, baseOverride?: string): string {
   if (!path) return path;
 
   // External URLs or blob/data schemes should not be touched
@@ -19,7 +19,7 @@ export function resolveAssetUrl(path: string): string {
     return path;
   }
 
-  const base = import.meta.env.BASE_URL || '/';
+  const base = baseOverride !== undefined ? baseOverride : (import.meta.env.BASE_URL || '/');
   const cleanBase = base.endsWith('/') ? base : `${base}/`;
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
