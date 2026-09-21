@@ -6,6 +6,8 @@ import { ExperienceManager, LoadedExperience } from '../content/experience-manag
 import { ScreenController } from '../ui/screens.js';
 import { resolveAssetUrl } from '../utils/assets.js';
 
+import { PoseStabilizer } from './pose-stabilizer.js';
+
 const experiences = experiencesData as unknown as Record<string, TargetExperience>;
 
 export async function startCameraAR(
@@ -27,7 +29,12 @@ export async function startCameraAR(
     maxTrack: 1,
     uiLoading: 'no',
     uiScanning: 'no',
-    uiError: 'no'
+    uiError: 'no',
+    // OneEuroFilter at CV tracking level (tames raw matrix jitter without lag)
+    filterMinCF: 0.0005,
+    filterBeta: 10,
+    warmupTolerance: 5,
+    missTolerance: 5
   });
 
   const { renderer, scene, camera } = mindarThree;
@@ -66,6 +73,17 @@ export async function startCameraAR(
     }
   });
 
+  interface StabilizedAnchor {
+    anchor: any;
+    presentationGroup: THREE.Group;
+    stabilizer: PoseStabilizer;
+  }
+
+  const stabilizedAnchors: StabilizedAnchor[] = [];
+  const _tempPos = new THREE.Vector3();
+  const _tempQuat = new THREE.Quaternion();
+  const _tempScale = new THREE.Vector3();
+
   // Dynamically register anchors from virtual:ar-targets
   for (const target of targets) {
     const anchorIndex = getTargetIndex(target.id);
@@ -73,6 +91,22 @@ export async function startCameraAR(
 
     const anchor = mindarThree.addAnchor(anchorIndex);
     const expConfig = experiences[target.id];
+
+    // Smooth presentation group decoupled from discrete camera ticks
+    const presentationGroup = new THREE.Group();
+    presentationGroup.visible = false;
+    scene.add(presentationGroup);
+
+    const stabilizer = new PoseStabilizer({
+      deadbandDist: 0.001,
+      deadbandAngle: 0.12 * Math.PI / 180,
+      posLerpSpeed: 25,
+      rotLerpSpeed: 25,
+      fastCatchupDist: 0.06,
+      fastCatchupAngle: 8 * Math.PI / 180
+    });
+
+    stabilizedAnchors.push({ anchor, presentationGroup, stabilizer });
 
     anchor.onTargetFound = async () => {
       currentTrackedTarget = target.id;
@@ -83,8 +117,11 @@ export async function startCameraAR(
       );
       onTargetChange(target.id, anchorIndex);
 
+      stabilizer.reset();
+      presentationGroup.visible = true;
+
       // Strict per-target lazy loading + progressive reveal
-      const loadedExp = await experienceManager.loadTargetExperience(target.id, anchor.group);
+      const loadedExp = await experienceManager.loadTargetExperience(target.id, presentationGroup);
       activeLoadedExperiences.set(target.id, loadedExp);
     };
 
@@ -93,6 +130,8 @@ export async function startCameraAR(
         currentTrackedTarget = null;
       }
       screens.showLost();
+      presentationGroup.visible = false;
+      stabilizer.reset();
 
       const loadedExp = activeLoadedExperiences.get(target.id);
       if (loadedExp) {
@@ -113,6 +152,23 @@ export async function startCameraAR(
     const now = performance.now();
     const delta = (now - lastTime) / 1000;
     lastTime = now;
+
+    // Continuous 60Hz pose stabilization (smooths discrete ~20Hz tracking judder)
+    for (let i = 0; i < stabilizedAnchors.length; i++) {
+      const entry = stabilizedAnchors[i];
+      if (entry.anchor.group.visible) {
+        entry.presentationGroup.visible = true;
+        entry.anchor.group.matrix.decompose(_tempPos, _tempQuat, _tempScale);
+        entry.stabilizer.update(_tempPos, _tempQuat, _tempScale, delta);
+
+        entry.presentationGroup.position.copy(entry.stabilizer.currentPos);
+        entry.presentationGroup.quaternion.copy(entry.stabilizer.currentQuat);
+        entry.presentationGroup.scale.copy(entry.stabilizer.currentScale);
+      } else {
+        entry.presentationGroup.visible = false;
+        entry.stabilizer.reset();
+      }
+    }
 
     activeLoadedExperiences.forEach((exp) => exp.update(delta));
     renderer.render(scene, camera);

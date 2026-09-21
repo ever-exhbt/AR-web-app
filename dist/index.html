@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <title>Ever WebAR — Image Tracking</title>
     <meta name="description" content="Mobile-first WebAR image tracking powered by MindAR-JS and Three.js." />
-    <script type="module" crossorigin src="/AR-web-app/assets/index-D2i94fAm.js"></script>
-    <link rel="stylesheet" crossorigin href="/AR-web-app/assets/index-C2ULhsnO.css">
+    <script type="module" crossorigin src="/assets/index-DQCb1WhM.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C2ULhsnO.css">
   </head>
   <body>
     <!-- Screen reader live announcer -->
@@ -31,7 +31,7 @@
         <main id="screen-landing" class="screen-landing interactive">
           <div class="landing-hero">
             <img
-              src="/AR-web-app/assets/wordmark-C6vlnGuD.png"
+              src="/assets/wordmark-C6vlnGuD.png"
               alt="Ever Wordmark"
               class="landing-wordmark"
               width="240"
@@ -40,10 +40,9 @@
             />
           </div>
           <div class="landing-card">
-            <h1 class="landing-title">WebAR Image Experience</h1>
+            <h1 class="landing-title">WebAR Experience</h1>
             <p class="landing-subtitle">
-              Point your camera at a registered target card to instantly reveal augmented 3D content, streaming video, and interactive details.
-            </p>
+              Point your camera at a registered target to reveal augmented content.
             <div class="landing-actions">
               <button id="btn-start-ar" class="btn btn-primary" type="button">
                 Start AR Experience
@@ -64,14 +63,14 @@
             <div class="corner corner-br"></div>
             <div class="scan-laser"></div>
           </div>
-          <div class="scan-prompt">Point camera at target card</div>
+          <div class="scan-prompt">Point camera at target</div>
         </div>
 
         <!-- Found Info Card Overlay (Sleek, Non-Intrusive, No External Links) -->
         <aside id="info-card-container" class="info-card-container hidden interactive" aria-label="Target information">
           <div class="info-card">
             <h2 id="card-heading" class="info-card-title">Ever WebAR Target #001</h2>
-            <p id="card-body" class="info-card-body">Anchor locked. 3D augmentation active.</p>
+            <p id="card-body" class="info-card-body">3D AR active.</p>
           </div>
         </aside>
 
