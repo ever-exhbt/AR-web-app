@@ -1,18 +1,20 @@
 import * as THREE from 'three';
 import { ImageItem, RenderableItem } from './types.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 export async function createImageItem(item: ImageItem): Promise<RenderableItem> {
   const loader = new THREE.TextureLoader();
+  const imageUrl = resolveAssetUrl(item.src);
 
   const texture = await new Promise<THREE.Texture>((resolve, reject) => {
     loader.load(
-      item.src,
+      imageUrl,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         resolve(tex);
       },
       undefined,
-      (err) => reject(new Error(`Failed to load image at '${item.src}': ${err}`))
+      (err) => reject(new Error(`Failed to load image at '${imageUrl}': ${err}`))
     );
   });
 

@@ -151,11 +151,11 @@
       async function loadTargets() {
         const grid = document.getElementById('target-grid');
         try {
-          const res = await fetch('/targets-manifest.json');
+          const res = await fetch('./targets-manifest.json');
           const data = await res.json();
           grid.innerHTML = data.targets.map(t => `
             <div class="target-card">
-              <img class="target-img" src="/${t.source}" alt="${t.id}" />
+              <img class="target-img" src="./${t.source}" alt="${t.id}" />
               <div class="target-meta">
                 <span>Target ID: <strong>${t.id}</strong> (Index #${t.index})</span>
                 <span>${t.width} × ${t.height} px</span>

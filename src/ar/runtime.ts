@@ -4,6 +4,7 @@ import experiencesData from '../../content/experiences.json';
 import { TargetExperience } from '../content/types.js';
 import { ExperienceManager, LoadedExperience } from '../content/experience-manager.js';
 import { ScreenController } from '../ui/screens.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 const experiences = experiencesData as Record<string, TargetExperience>;
 
@@ -22,7 +23,7 @@ export async function startCameraAR(
   screens.setStatus('REQUESTING CAMERA...', 'scanning');
   const mindarThree = new MindARThree({
     container,
-    imageTargetSrc: mindFile,
+    imageTargetSrc: resolveAssetUrl(mindFile),
     maxTrack: 1,
     uiLoading: 'no',
     uiScanning: 'no',

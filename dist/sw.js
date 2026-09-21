@@ -1,16 +1,16 @@
-const CACHE_NAME = 'ever-webar-v1';
-
-// Static app shell resources to pre-cache on install
-const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/targets-manifest.json'
-];
+const CACHE_NAME = 'ever-webar-v2';
 
 self.addEventListener('install', (event) => {
+  const scope = self.registration ? self.registration.scope : './';
+  const precacheUrls = [
+    new URL('./', scope).pathname,
+    new URL('index.html', scope).pathname,
+    new URL('targets-manifest.json', scope).pathname
+  ];
+
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS).catch((err) => {
+      return cache.addAll(precacheUrls).catch((err) => {
         console.warn('[SW] Pre-cache error:', err);
       });
     }).then(() => self.skipWaiting())
@@ -36,7 +36,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // 1. Hashed immutable assets (targets.<hash>.mind, /assets/*.js, /assets/*.css) -> Cache First
-  if (url.pathname.includes('.mind') || url.pathname.startsWith('/assets/')) {
+  if (url.pathname.includes('.mind') || url.pathname.includes('/assets/')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // 2. Heavy 3D and media content (/content/assets/) -> Cache First with Network Fallback
-  if (url.pathname.startsWith('/content/assets/')) {
+  if (url.pathname.includes('/content/assets/')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {

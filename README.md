@@ -163,24 +163,38 @@ npm run optimize
 
 ---
 
-## 6. Deployment (End-to-End Walkthrough)
+## 6. Deployment (GitHub Pages via GitHub Actions)
 
-Deployable to any static HTTPS CDN host (Cloudflare Pages, Vercel, Netlify, GitHub Pages).
+The repository includes an automated GitHub Actions deployment workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
-### Cloudflare Pages / Vercel Setup
-1. **Connect Repository:** Link your Git repository.
-2. **Build Settings:**
-   - **Build command:** `npm run build`
-   - **Output directory:** `dist`
-   - **Node.js Version:** `20.x`
-3. **Cache-Control Configuration (`_headers` file for Cloudflare Pages):**
-   ```http
-   /assets/*
-     Cache-Control: public, max-age=31536000, immutable
-
-   /*.mind
-     Cache-Control: public, max-age=31536000, immutable
+### Step-by-Step GitHub Pages Configuration (One-Time Setup)
+1. Open your repository on GitHub: **`https://github.com/ever-exhbt/AR-web-app`**.
+2. Click the **Settings** tab at the top of the repository.
+3. In the left navigation sidebar under *Code and automation*, click **Pages**.
+4. Under **Build and deployment**:
+   - Change the **Source** dropdown from *"Deploy from a branch"* to **GitHub Actions**.
+5. Push your code to the **`main`** branch:
+   ```bash
+   git add .
+   git commit -m "Configure GitHub Pages deployment"
+   git push origin main
    ```
+6. The **Deploy to GitHub Pages** workflow will trigger automatically:
+   - Sets up Node.js 20 and installs system Cairo/Canvas libraries on Ubuntu runner.
+   - Executes `npm test` unit tests.
+   - Runs `npm run build` which compiles `.mind` targets with caching and builds the Vite bundle.
+   - Automatically sets Vite base path to `/AR-web-app/` using `GITHUB_REPOSITORY`.
+   - Deploys the artifact to GitHub Pages.
+7. Your live WebAR application will be accessible at:
+   **`https://ever-exhbt.github.io/AR-web-app/`**
+
+### Alternative Static Hosts (Cloudflare Pages / Vercel / Netlify)
+If deploying to a custom root domain (e.g. `https://ar.example.com`):
+1. **Build command:** `npm run build`
+2. **Output directory:** `dist`
+3. **Node.js Version:** `20.x`
+4. Set environment variable `BASE_URL=/` if deploying to the root of a custom domain.
+
 
 ---
 

@@ -4,6 +4,7 @@ import experiencesData from '../../content/experiences.json';
 import { TargetExperience } from '../content/types.js';
 import { ExperienceManager, LoadedExperience } from '../content/experience-manager.js';
 import { ScreenController } from '../ui/screens.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 const experiences = experiencesData as Record<string, TargetExperience>;
 
@@ -43,7 +44,7 @@ export async function startPreview(
   // Target Reference Plane
   const targetAspect = target ? target.height / target.width : 1.25;
   const textureLoader = new THREE.TextureLoader();
-  const textureUrl = target ? `/${target.source}` : '/sample-target.png';
+  const textureUrl = target ? resolveAssetUrl(target.source) : resolveAssetUrl('sample-target.png');
 
   const texture = await new Promise<THREE.Texture>((resolve) => {
     textureLoader.load(textureUrl, (tex) => {

@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { VideoItem, RenderableItem } from './types.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 export async function createVideoItem(item: VideoItem): Promise<RenderableItem> {
   const group = new THREE.Group();
 
   // Create video element
   const video = document.createElement('video');
-  video.src = item.src;
+  video.src = resolveAssetUrl(item.src);
   video.crossOrigin = 'anonymous';
   video.playsInline = true;
   video.muted = true;
@@ -36,7 +37,7 @@ export async function createVideoItem(item: VideoItem): Promise<RenderableItem> 
   if (item.poster) {
     const texLoader = new THREE.TextureLoader();
     posterTexture = await new Promise<THREE.Texture>((resolve) => {
-      texLoader.load(item.poster!, (tex) => {
+      texLoader.load(resolveAssetUrl(item.poster!), (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         resolve(tex);
       });

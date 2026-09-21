@@ -125,12 +125,15 @@ if (previewTargetId) {
   }
 }
 
+import { resolveAssetUrl } from './utils/assets.js';
+
 // Register service worker in production for repeat-visit caching of .mind and assets
 if (!isDev && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
+    navigator.serviceWorker.register(resolveAssetUrl('sw.js')).catch((err) => {
       console.warn('SW registration failed:', err);
     });
   });
 }
+
 

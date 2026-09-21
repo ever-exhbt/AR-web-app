@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { ModelItem, RenderableItem } from './types.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 let sharedLoader: GLTFLoader | null = null;
 
@@ -14,13 +15,14 @@ async function getGLTFLoader(): Promise<GLTFLoader> {
 
 export async function createModelItem(item: ModelItem): Promise<RenderableItem> {
   const loader = await getGLTFLoader();
+  const modelUrl = resolveAssetUrl(item.src);
 
   const gltf = await new Promise<any>((resolve, reject) => {
     loader.load(
-      item.src,
+      modelUrl,
       (g) => resolve(g),
       undefined,
-      (err) => reject(new Error(`Failed to load 3D model '${item.src}': ${err}`))
+      (err) => reject(new Error(`Failed to load 3D model '${modelUrl}': ${err}`))
     );
   });
 
