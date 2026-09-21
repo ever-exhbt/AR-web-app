@@ -99,7 +99,7 @@ export class ScreenController {
     if (bodyEl) bodyEl.textContent = body;
 
     this.elFoundCard.classList.remove('hidden');
-    this.setStatus('TARGET LOCKED', 'locked');
+    this.setStatus('TARGET FOUND', 'locked');
     this.announce(`Target locked: ${title}`);
   }
 
