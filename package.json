@@ -1,0 +1,26 @@
+{
+  "name": "ever-webar",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node tools/compile-targets/compile.js && vite build",
+    "preview": "vite preview",
+    "targets": "node tools/compile-targets/compile.js",
+    "test": "vitest run",
+    "optimize": "node tools/optimize-assets.js"
+  },
+  "dependencies": {
+    "mind-ar": "1.2.5",
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.4"
+  }
+}

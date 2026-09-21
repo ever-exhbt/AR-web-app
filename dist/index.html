@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <title>Ever WebAR — Image Tracking</title>
+    <meta name="description" content="Mobile-first WebAR image tracking powered by MindAR-JS and Three.js." />
+    <script type="module" crossorigin src="/assets/index-C7DUmJGc.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B1oyiyKe.css">
+  </head>
+  <body>
+    <!-- Screen reader live announcer -->
+    <div id="screen-reader-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <div id="app">
+      <!-- 3D & Camera Viewport -->
+      <div id="ar-container"></div>
+
+      <!-- UI Layer -->
+      <div id="ui-layer">
+        <!-- Persistent Top Header -->
+        <header class="header-bar interactive">
+          <div class="brand-badge">
+            <span class="brand-dot"></span>
+            <span>EVER WEBAR</span>
+          </div>
+          <div id="status-indicator" class="mode-badge mode-standby">STANDBY</div>
+        </header>
+
+        <!-- Landing Screen -->
+        <main id="screen-landing" class="screen-landing interactive">
+          <div class="landing-card">
+            <h1 class="landing-title">WebAR Image Experience</h1>
+            <p class="landing-subtitle">
+              Point your camera at a registered target card to instantly reveal augmented 3D content, streaming video, and interactive details.
+            </p>
+            <div class="landing-actions">
+              <button id="btn-start-ar" class="btn btn-primary" type="button">
+                Start AR Experience
+              </button>
+              <button id="btn-start-preview" class="btn btn-secondary" type="button">
+                Open 3D Preview Mode
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <!-- Scanning Reticle State -->
+        <div id="screen-scanning" class="scanning-container hidden" role="region" aria-label="Camera viewfinder">
+          <div class="scanning-box">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="scan-laser"></div>
+          </div>
+          <div class="scan-prompt">Point camera at target card</div>
+        </div>
+
+        <!-- Found Info Card Overlay (Sleek, Non-Intrusive, No External Links) -->
+        <aside id="info-card-container" class="info-card-container hidden interactive" aria-label="Target information">
+          <div class="info-card">
+            <h2 id="card-heading" class="info-card-title">Ever WebAR Target #001</h2>
+            <p id="card-body" class="info-card-body">Anchor locked. 3D augmentation active.</p>
+          </div>
+        </aside>
+
+        <!-- Error & Edge State Screen -->
+        <section id="screen-error" class="screen-error hidden interactive" role="alert">
+          <div class="error-card">
+            <h2 id="error-title" class="error-title">Camera Access Required</h2>
+            <p id="error-message" class="error-message">
+              Camera access is required for real-time tracking. Please enable permissions in site settings.
+            </p>
+            <div class="error-actions">
+              <button id="btn-error-action" class="btn btn-primary" type="button">
+                Try Again
+              </button>
+              <button id="btn-error-preview" class="btn btn-secondary" type="button">
+                Continue in 3D Preview
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Debug HUD -->
+        <div id="debug-hud" class="debug-hud hidden" aria-hidden="true">
+          <div id="hud-fps">FPS: --</div>
+          <div id="hud-target">Target: none</div>
+          <div id="hud-status">Status: idle</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

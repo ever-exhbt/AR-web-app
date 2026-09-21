@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ever WebAR — Print Testing Sheet</title>
+    <style>
+      :root {
+        --color-bg: #f8fafc;
+        --color-text: #0f172a;
+        --color-border: #cbd5e1;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        padding: 24px;
+        line-height: 1.5;
+      }
+
+      .header {
+        max-width: 800px;
+        margin: 0 auto 24px auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #64748b;
+      }
+
+      .btn-print {
+        background-color: #0284c7;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-print:hover {
+        background-color: #0369a1;
+      }
+
+      .grid {
+        max-width: 800px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 32px;
+      }
+
+      .target-card {
+        background: #ffffff;
+        border: 2px dashed var(--color-border);
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        page-break-inside: avoid;
+      }
+
+      .target-img {
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+        aspect-ratio: 4 / 5;
+        object-fit: contain;
+        border: 1px solid #000;
+      }
+
+      .target-meta {
+        margin-top: 12px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+      }
+
+      .instructions {
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 16px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #334155;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+        }
+        .header, .instructions, .btn-print {
+          display: none !important;
+        }
+        .grid {
+          display: block;
+          max-width: 100%;
+        }
+        .target-card {
+          margin-bottom: 24px;
+          border: 1px dashed #94a3b8;
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <h1 class="title">Ever WebAR Target Print Sheet</h1>
+        <p class="subtitle">Print these target cards at 100% scale on A4 or Letter paper for physical camera tracking tests.</p>
+      </div>
+      <button class="btn-print" onclick="window.print()">Print Cards</button>
+    </div>
+
+    <div class="instructions">
+      <strong>Testing Instructions:</strong>
+      <ol style="margin-left: 20px; margin-top: 6px;">
+        <li>Print this sheet or display on an external monitor.</li>
+        <li>Open the Ever WebAR web app on your phone camera over HTTPS.</li>
+        <li>Point your device at each target card to verify instant anchor lock, video playback, and 3D model orientation.</li>
+      </ol>
+    </div>
+
+    <div id="target-grid" class="grid">
+      <!-- Injected by script -->
+    </div>
+
+    <script>
+      async function loadTargets() {
+        const grid = document.getElementById('target-grid');
+        try {
+          const res = await fetch('/targets-manifest.json');
+          const data = await res.json();
+          grid.innerHTML = data.targets.map(t => `
+            <div class="target-card">
+              <img class="target-img" src="/${t.source}" alt="${t.id}" />
+              <div class="target-meta">
+                <span>Target ID: <strong>${t.id}</strong> (Index #${t.index})</span>
+                <span>${t.width} × ${t.height} px</span>
+              </div>
+            </div>
+          `).join('');
+        } catch (err) {
+          grid.innerHTML = '<p>Could not load targets-manifest.json</p>';
+        }
+      }
+      loadTargets();
+    </script>
+  </body>
+</html>

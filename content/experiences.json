@@ -1,0 +1,68 @@
+{
+  "sample-target": {
+    "title": "Ever WebAR Core",
+    "items": [
+      {
+        "type": "text",
+        "text": "EVER WEBAR ACTIVE",
+        "position": [0, 0.65, 0.02],
+        "width": 0.85,
+        "color": "#38bdf8"
+      },
+      {
+        "type": "model",
+        "src": "/content/assets/sample-model.glb",
+        "position": [0, 0.05, 0.1],
+        "scale": 0.55,
+        "animation": "auto"
+      },
+      {
+        "type": "video",
+        "src": "/content/assets/sample-video.mp4",
+        "poster": "/content/assets/sample-video-poster.webp",
+        "width": 0.65,
+        "position": [0, -0.42, 0.01],
+        "loop": true
+      },
+      {
+        "type": "image",
+        "src": "/content/assets/sample-badge.webp",
+        "width": 0.28,
+        "position": [0.36, 0.5, 0.03]
+      }
+    ],
+    "infoCard": {
+      "heading": "Ever WebAR Core Experience",
+      "body": "Dual-mesh GLB model, streaming video texture, and canvas text verified."
+    }
+  },
+  "second-poster": {
+    "title": "Cyber Horizon",
+    "items": [
+      {
+        "type": "text",
+        "text": "CYBER HORIZON",
+        "position": [0, 0.65, 0.02],
+        "width": 0.8,
+        "color": "#f59e0b"
+      },
+      {
+        "type": "model",
+        "src": "/content/assets/second-model.glb",
+        "position": [0, 0.1, 0.1],
+        "scale": 0.6,
+        "animation": "auto"
+      },
+      {
+        "type": "image",
+        "src": "/content/assets/sample-badge.webp",
+        "width": 0.35,
+        "position": [0, -0.38, 0.02]
+      }
+    ],
+    "infoCard": {
+      "heading": "Cyber Horizon",
+      "body": "Golden dodecahedron model with procedural spin and WebP badge overlay."
+    }
+  }
+}
