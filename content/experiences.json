@@ -83,14 +83,31 @@
       {
         "type": "model",
         "src": "/content/assets/blue-cupcake.glb",
-        "position": [0, 0.05, 0.1],
-        "scale": 0.55,
+        "position": [0, 0.05, -0.4],
+        "scale": 0.9,
+        "rotation": [0, 90, 0],
         "animation": "auto"
       }
     ],
     "infoCard": {
       "heading": "Blue Cupcake Target",
       "body": "A blue cupcake for demo testing purposes."
+    }
+  },
+  "0-untitled": {
+    "title": "Untitled",
+    "items": [
+      {
+        "type": "video",
+        "src": "/content/assets/0-untitled.mp4",
+        "width": 1,
+        "position": [0, 0, 0.01],
+        "loop": true
+      }
+    ],
+    "infoCard": {
+      "heading": "Untitled",
+      "body": "Others see a vibrant hue, but do you? | Art by Lee Andrew Salonoy "
     }
   },
   "sample-target": {

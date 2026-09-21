@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TargetExperience, ExperienceItem, RenderableItem } from './types.js';
+import { TargetExperience, RenderableItem } from './types.js';
 import { createTextItem } from './item-text.js';
 import { createImageItem } from './item-image.js';
 import { createVideoItem } from './item-video.js';

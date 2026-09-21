@@ -18,7 +18,7 @@ export default defineConfig({
     basicSsl(),
     mindTargetsPlugin(),
     visualizer({
-      filename: 'stats.html',
+      filename: 'dist/stats.html',
       gzipSize: true,
       brotliSize: true,
       open: false

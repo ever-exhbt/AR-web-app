@@ -1,5 +1,3 @@
-import { ExperiencesConfig, ExperienceItem } from './types.js';
-
 export interface ValidationError {
   targetId: string;
   itemIndex?: number;

@@ -1,4 +1,4 @@
-import { checkEnvironment, copyCurrentUrl } from './detector.js';
+import { copyCurrentUrl } from './detector.js';
 
 export type ScreenState = 'landing' | 'scanning' | 'found' | 'error' | 'preview';
 

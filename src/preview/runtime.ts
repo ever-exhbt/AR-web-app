@@ -6,7 +6,7 @@ import { ExperienceManager, LoadedExperience } from '../content/experience-manag
 import { ScreenController } from '../ui/screens.js';
 import { resolveAssetUrl } from '../utils/assets.js';
 
-const experiences = experiencesData as Record<string, TargetExperience>;
+const experiences = experiencesData as unknown as Record<string, TargetExperience>;
 
 export async function startPreview(
   container: HTMLElement,

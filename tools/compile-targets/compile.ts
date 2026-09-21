@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { createCanvas, loadImage } from 'canvas';
+import { loadImage } from 'canvas';
+// @ts-ignore
 import { OfflineCompiler } from 'mind-ar/src/image-target/offline-compiler.js';
+
 
 export const COMPILER_VERSION = '1.2.5';
 export const VALID_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
@@ -169,6 +171,34 @@ export function computeCombinedHash(targets: TargetFileInfo[]): string {
 }
 
 /**
+ * Automatically synchronizes content/assets to public/content/assets so developers
+ * only need to drag and drop assets into content/assets.
+ */
+export function syncContentAssets(
+  srcDir: string = path.resolve('content/assets'),
+  destDir: string = path.resolve('public/content/assets'),
+  retries: number = 3
+): void {
+  if (!fs.existsSync(srcDir)) return;
+  if (!fs.existsSync(destDir)) {
+    fs.mkdirSync(destDir, { recursive: true });
+  }
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      fs.cpSync(srcDir, destDir, { recursive: true, force: true });
+      return;
+    } catch (err: any) {
+      if (attempt === retries) {
+        console.warn(`[syncContentAssets] Warning: Some assets may be temporarily locked: ${err.message}`);
+      } else {
+        const start = Date.now();
+        while (Date.now() - start < 250) {}
+      }
+    }
+  }
+}
+
+/**
  * Compiles all targets into a single .mind file with incremental caching
  */
 export async function compileTargets({
@@ -178,7 +208,10 @@ export async function compileTargets({
   experiencesPath = path.resolve('content/experiences.json'),
   force = false
 } = {}): Promise<{ manifest: TargetsManifest; cached: boolean; mindFilename: string } | null> {
+  syncContentAssets();
+
   const targets = scanTargets(targetsDir);
+
   if (targets.length === 0) {
     console.warn('[compile-targets] No tracking images found in', targetsDir);
     return null;

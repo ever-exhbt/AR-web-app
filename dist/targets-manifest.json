@@ -1,8 +1,16 @@
 {
-  "mindFile": "/targets.3b60cd6e.mind",
+  "mindFile": "/targets.de0f2aca.mind",
   "targets": [
     {
       "index": 0,
+      "id": "0-untitled",
+      "source": "0-untitled.png",
+      "width": 1000,
+      "height": 1414,
+      "hash": "6d77215d0f66"
+    },
+    {
+      "index": 1,
       "id": "blue-cupcake",
       "source": "blue-cupcake.png",
       "width": 824,
@@ -10,7 +18,7 @@
       "hash": "407eb44ddbe6"
     },
     {
-      "index": 1,
+      "index": 2,
       "id": "sample-target",
       "source": "sample-target.png",
       "width": 800,
@@ -18,7 +26,7 @@
       "hash": "32bc95f8d1c6"
     },
     {
-      "index": 2,
+      "index": 3,
       "id": "second-poster",
       "source": "second-poster.png",
       "width": 800,

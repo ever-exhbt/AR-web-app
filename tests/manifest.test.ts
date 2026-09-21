@@ -5,9 +5,9 @@ import {
   scanTargets,
   isSlugSafe,
   validateTargets,
-  computeCombinedHash,
-  COMPILER_VERSION
+  computeCombinedHash
 } from '../tools/compile-targets/compile.js';
+
 
 const TEST_DIR = path.resolve('tests/fixture-targets');
 const TEST_EXP_PATH = path.resolve('tests/fixture-experiences.json');

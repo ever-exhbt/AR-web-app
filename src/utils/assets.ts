@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Resolves a root-relative or relative asset path against Vite's base URL.
  * Handles both development ('/') and GitHub Pages ('/AR-web-app/').

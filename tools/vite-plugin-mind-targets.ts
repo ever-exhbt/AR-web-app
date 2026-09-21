@@ -106,11 +106,20 @@ export default manifest;
       const handleFileChange = (filePath: string) => {
         const normalized = path.resolve(filePath);
         if (normalized.startsWith(contentAssetsDir)) {
-          console.log('[vite-plugin-mind-targets] Syncing content/assets to public/content/assets...');
-          syncContentAssets();
-          server.ws.send({ type: 'full-reload', path: '*' });
+          if (recompileTimeout) clearTimeout(recompileTimeout);
+          // 400ms debounce to allow multi-megabyte video/model copy operations to release locks
+          recompileTimeout = setTimeout(() => {
+            try {
+              console.log('[vite-plugin-mind-targets] Syncing content/assets to public/content/assets...');
+              syncContentAssets();
+              server.ws.send({ type: 'full-reload', path: '*' });
+            } catch (err: any) {
+              console.warn('[vite-plugin-mind-targets] Asset sync deferred:', err.message || err);
+            }
+          }, 400);
           return;
         }
+
 
         if (normalized.startsWith(targetsDir) || normalized === experiencesFile) {
           if (recompileTimeout) clearTimeout(recompileTimeout);

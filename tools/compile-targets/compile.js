@@ -146,14 +146,28 @@ export function computeCombinedHash(targets) {
  */
 export function syncContentAssets(
   srcDir = path.resolve('content/assets'),
-  destDir = path.resolve('public/content/assets')
+  destDir = path.resolve('public/content/assets'),
+  retries = 3
 ) {
   if (!fs.existsSync(srcDir)) return;
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir, { recursive: true });
   }
-  fs.cpSync(srcDir, destDir, { recursive: true });
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      fs.cpSync(srcDir, destDir, { recursive: true, force: true });
+      return;
+    } catch (err) {
+      if (attempt === retries) {
+        console.warn(`[syncContentAssets] Warning: Some assets may be temporarily locked: ${err.message}`);
+      } else {
+        const start = Date.now();
+        while (Date.now() - start < 250) {}
+      }
+    }
+  }
 }
+
 
 /**
  * Compiles all targets into a single .mind file with incremental caching
