@@ -1,7 +1,7 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
-import { compileTargets } from './compile-targets/compile.js';
+import { compileTargets, syncContentAssets } from './compile-targets/compile.js';
 
 const VIRTUAL_MODULE_ID = 'virtual:ar-targets';
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
@@ -74,6 +74,7 @@ export default manifest;
     configureServer(server: ViteDevServer) {
       const targetsDir = path.resolve('targets');
       const experiencesFile = path.resolve('content/experiences.json');
+      const contentAssetsDir = path.resolve('content/assets');
 
       const triggerRecompileAndReload = async () => {
         if (isCompiling) return;
@@ -104,6 +105,13 @@ export default manifest;
 
       const handleFileChange = (filePath: string) => {
         const normalized = path.resolve(filePath);
+        if (normalized.startsWith(contentAssetsDir)) {
+          console.log('[vite-plugin-mind-targets] Syncing content/assets to public/content/assets...');
+          syncContentAssets();
+          server.ws.send({ type: 'full-reload', path: '*' });
+          return;
+        }
+
         if (normalized.startsWith(targetsDir) || normalized === experiencesFile) {
           if (recompileTimeout) clearTimeout(recompileTimeout);
           // 250ms debounce to allow multi-file drag-and-drop operations
@@ -115,5 +123,6 @@ export default manifest;
       server.watcher.on('unlink', handleFileChange);
       server.watcher.on('change', handleFileChange);
     }
+
   };
 }

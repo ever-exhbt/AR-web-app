@@ -17,7 +17,13 @@ export function validateExperiences(config: unknown): { valid: boolean; errors: 
   const entries = Object.entries(config as Record<string, unknown>);
 
   for (const [targetId, exp] of entries) {
+    // Skip template/guide/documentation entries starting with '_' or '$'
+    if (targetId.startsWith('_') || targetId.startsWith('$')) {
+      continue;
+    }
+
     if (!exp || typeof exp !== 'object') {
+
       errors.push({ targetId, message: `Target '${targetId}' configuration must be an object.` });
       continue;
     }

@@ -1,4 +1,98 @@
 {
+  "_guide": {
+    "description": "Ever WebAR Experience Configuration Guide",
+    "coordinateSystem": {
+      "targetWidth": "Normalized to 1.0 unit. Target height depends on image aspect ratio.",
+      "position": "[x, y, z] in target units. x: -0.5 (left) to +0.5 (right). y: -0.5 (bottom) to +0.5 (top). z: 0 (flush with surface) to +0.5 (floating in front toward camera).",
+      "rotation": "[x, y, z] in degrees. e.g., [0, 0, 0] = upright facing camera. [90, 0, 0] = tilted flat.",
+      "scale": "Number or [sx, sy, sz]. e.g., 0.5 scales the item to half the target width."
+    },
+    "itemTypes": {
+      "model": {
+        "description": "3D GLTF/GLB model placed in AR space.",
+        "required": ["type", "src"],
+        "optional": ["position", "rotation", "scale", "animation"],
+        "notes": "src must start with /content/assets/... animation can be 'auto' (plays first animation clip) or a specific clip name."
+      },
+      "video": {
+        "description": "MP4 video streamed on an augmented 3D plane.",
+        "required": ["type", "src"],
+        "optional": ["poster", "width", "position", "rotation", "loop"],
+        "notes": "src must point to an H.264 MP4 with +faststart. poster is an optional WebP/PNG thumbnail shown while loading. loop defaults to true."
+      },
+      "image": {
+        "description": "2D image overlay (badge, sticker, or logo) preserving aspect ratio.",
+        "required": ["type", "src"],
+        "optional": ["width", "position", "rotation"],
+        "notes": "src can be WebP, PNG, or JPG."
+      },
+      "text": {
+        "description": "Crisp dynamic text banner rendered on a canvas texture.",
+        "required": ["type", "text"],
+        "optional": ["width", "color", "position", "rotation"],
+        "notes": "color is a hex code (e.g. #38bdf8). width is relative to target width (e.g. 0.8)."
+      },
+      "infoCard": {
+        "description": "Bottom DOM overlay card shown when target is locked.",
+        "required": ["heading", "body"],
+        "notes": "Displays title and brief explanation. Clean presentation without external links."
+      }
+    }
+  },
+  "_template": {
+    "title": "Display Title of Your Experience",
+    "items": [
+      {
+        "type": "text",
+        "text": "TITLE TEXT HERE",
+        "width": 0.8,
+        "color": "#38bdf8",
+        "position": [0.0, 0.65, 0.02]
+      },
+      {
+        "type": "model",
+        "src": "/content/assets/your-model.glb",
+        "scale": 0.5,
+        "position": [0.0, 0.0, 0.1],
+        "rotation": [0, 0, 0],
+        "animation": "auto"
+      },
+      {
+        "type": "video",
+        "src": "/content/assets/your-video.mp4",
+        "poster": "/content/assets/your-video-poster.webp",
+        "width": 0.6,
+        "position": [0.0, -0.4, 0.01],
+        "loop": true
+      },
+      {
+        "type": "image",
+        "src": "/content/assets/your-badge.webp",
+        "width": 0.25,
+        "position": [0.35, 0.5, 0.03]
+      }
+    ],
+    "infoCard": {
+      "heading": "Experience Heading",
+      "body": "A short 1-2 sentence description shown in the bottom card."
+    }
+  },
+  "blue-cupcake": {
+    "title": "Blue Cupcake",
+    "items": [
+      {
+        "type": "model",
+        "src": "/content/assets/blue-cupcake.glb",
+        "position": [0, 0.05, 0.1],
+        "scale": 0.55,
+        "animation": "auto"
+      }
+    ],
+    "infoCard": {
+      "heading": "Blue Cupcake Target",
+      "body": "A blue cupcake for demo testing purposes."
+    }
+  },
   "sample-target": {
     "title": "Ever WebAR Core",
     "items": [

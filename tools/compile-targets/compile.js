@@ -74,7 +74,8 @@ export function validateTargets(
     try {
       const expContent = fs.readFileSync(experiencesPath, 'utf8');
       const experiences = JSON.parse(expContent);
-      const expIds = Object.keys(experiences);
+      // Ignore metadata, guides, and template entries starting with '_' or '$'
+      const expIds = Object.keys(experiences).filter(id => !id.startsWith('_') && !id.startsWith('$'));
 
       // Check for entries in experiences.json with no matching image
       for (const expId of expIds) {
@@ -140,6 +141,21 @@ export function computeCombinedHash(targets) {
 }
 
 /**
+ * Automatically synchronizes content/assets to public/content/assets so developers
+ * only need to drag and drop assets into content/assets.
+ */
+export function syncContentAssets(
+  srcDir = path.resolve('content/assets'),
+  destDir = path.resolve('public/content/assets')
+) {
+  if (!fs.existsSync(srcDir)) return;
+  if (!fs.existsSync(destDir)) {
+    fs.mkdirSync(destDir, { recursive: true });
+  }
+  fs.cpSync(srcDir, destDir, { recursive: true });
+}
+
+/**
  * Compiles all targets into a single .mind file with incremental caching
  */
 export async function compileTargets({
@@ -149,7 +165,11 @@ export async function compileTargets({
   experiencesPath = path.resolve('content/experiences.json'),
   force = false
 } = {}) {
+  // Sync assets from content/assets -> public/content/assets
+  syncContentAssets();
+
   const targets = scanTargets(targetsDir);
+
   if (targets.length === 0) {
     console.warn('[compile-targets] No tracking images found in', targetsDir);
     return null;

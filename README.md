@@ -110,11 +110,16 @@ Map any mix of 3D models, video textures, images, and canvas text to any registe
 | `text` | Rendered dynamically to a high-resolution 2D Canvas texture. No external fonts or heavy 3D text geometry. |
 | `infoCard` | Sleek, non-intrusive bottom DOM overlay displaying contextual details without obscuring the camera. |
 
+### Asset Placement: Where to Drag-and-Drop
+- **Drop all custom 3D models, videos, and images into `content/assets/`**.
+- You do **not** need to touch `public/content/assets/`. The build script and live dev watcher automatically synchronize files from `content/assets/` into `public/content/assets/` for browser delivery.
+
 ### Units & Coordinates
 - Normalized target coordinate system: **Target Width = 1.0 unit**, Height = Image Aspect Ratio.
 - `position`: `[x, y, z]` relative to target center (`z > 0` floats above the image).
 - `rotation`: `[x, y, z]` in degrees.
 - `scale`: number or `[x, y, z]`.
+
 
 ---
 
