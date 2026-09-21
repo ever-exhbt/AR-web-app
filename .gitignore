@@ -27,3 +27,7 @@ stats.html
 # OS files
 .DS_Store
 Thumbs.db
+
+# Private documentation / specs
+AGENT_SPEC.md
+README.md
