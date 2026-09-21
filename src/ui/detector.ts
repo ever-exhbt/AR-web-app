@@ -9,12 +9,17 @@ export interface EnvironmentCheckResult {
 /**
  * Checks system capability and detects in-app WebViews that restrict camera access.
  */
-export function checkEnvironment(): EnvironmentCheckResult {
-  const isSecure = window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const hasCamera = !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
+export function checkEnvironment(customUserAgent?: string): EnvironmentCheckResult {
+  const isSecure = typeof window !== 'undefined'
+    ? (window.isSecureContext || window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1')
+    : true;
+  const hasCamera = typeof navigator !== 'undefined' && !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
 
-  const ua = navigator.userAgent || navigator.vendor || (window as any).opera || '';
-  const isIOS = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream;
+  const ua = customUserAgent !== undefined
+    ? customUserAgent
+    : (typeof navigator !== 'undefined' ? (navigator.userAgent || navigator.vendor || (window as any)?.opera || '') : '');
+
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !(typeof window !== 'undefined' && (window as any).MSStream);
   const recommendedBrowser = isIOS ? 'Safari' : 'Chrome';
 
   let isInApp = false;
@@ -35,13 +40,14 @@ export function checkEnvironment(): EnvironmentCheckResult {
   } else if (/Snapchat/i.test(ua)) {
     isInApp = true;
     inAppName = 'Snapchat';
-  } else if (/Twitter|X\//i.test(ua)) {
+  } else if (/\bTwitter|\bX\/\d+/i.test(ua)) {
     isInApp = true;
     inAppName = 'X / Twitter';
   } else if (/MicroMessenger/i.test(ua)) {
     isInApp = true;
     inAppName = 'WeChat';
   }
+
 
   return {
     isSecureContext: isSecure,
