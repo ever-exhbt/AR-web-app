@@ -197,11 +197,45 @@ html, body {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: var(--space-6);
+  padding-top: calc(var(--safe-top) + var(--space-6));
   padding-bottom: calc(var(--safe-bottom) + var(--space-8));
   background: radial-gradient(circle at 50% 30%, #161f30 0%, #0d1117 75%);
   z-index: 20;
+}
+
+.landing-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  min-height: 0;
+}
+
+.landing-wordmark {
+  width: 100%;
+  max-width: min(220px, 55vw);
+  max-height: min(110px, 16vh);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.35));
+  opacity: 0.95;
+  transition: opacity var(--transition-normal);
+}
+
+@media (max-height: 560px) {
+  .landing-hero {
+    padding: var(--space-2) var(--space-4);
+  }
+  .landing-wordmark {
+    max-height: 60px;
+    max-width: 150px;
+  }
 }
 
 .landing-card {
