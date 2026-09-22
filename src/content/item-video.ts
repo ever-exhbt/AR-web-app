@@ -60,6 +60,25 @@ export async function createVideoItem(item: VideoItem): Promise<RenderableItem> 
     }
   });
 
+  // Wait for initial video data so the video texture is ready
+  if (video.readyState < 2) {
+    await new Promise<void>((resolve) => {
+      let resolved = false;
+      const onReady = () => {
+        if (resolved) return;
+        resolved = true;
+        video.removeEventListener('loadeddata', onReady);
+        video.removeEventListener('canplay', onReady);
+        video.removeEventListener('error', onReady);
+        resolve();
+      };
+      video.addEventListener('loadeddata', onReady);
+      video.addEventListener('canplay', onReady);
+      video.addEventListener('error', onReady);
+      setTimeout(onReady, 2500);
+    });
+  }
+
   // When playback starts, hide poster
   video.addEventListener('playing', () => {
     if (posterMesh) {

@@ -13,6 +13,8 @@ export interface LoadedExperience {
   play: () => void;
   pause: () => void;
   update: (delta: number) => void;
+  isLoaded: boolean;
+  whenLoaded: Promise<void>;
 }
 
 export class ExperienceManager {
@@ -31,10 +33,11 @@ export class ExperienceManager {
   }
 
   /**
-   * Checks if target content is already loaded in LRU cache
+   * Checks if target content is already loaded in LRU cache and all its assets are ready
    */
   public hasTargetLoaded(targetId: string): boolean {
-    return this.lruCache.has(targetId);
+    const exp = this.lruCache.get(targetId);
+    return !!(exp && exp.isLoaded);
   }
 
   /**
@@ -75,6 +78,8 @@ export class ExperienceManager {
         targetId,
         group: experienceGroup,
         items: [],
+        isLoaded: true,
+        whenLoaded: Promise.resolve(),
         play: () => {},
         pause: () => {},
         update: () => {},
@@ -122,15 +127,24 @@ export class ExperienceManager {
 
     // Stage 4: Load 3D models (with temporary on-anchor indicator)
     const modelPromises = modelItems.map(async (item) => {
-      // Small on-anchor pulse marker until model arrives
-      const placeholderGeo = new THREE.RingGeometry(0.08, 0.1, 32);
+      // Small on-anchor spinning ring marker until model arrives
+      const placeholderGeo = new THREE.RingGeometry(0.07, 0.09, 32);
       const placeholderMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide });
       const placeholder = new THREE.Mesh(placeholderGeo, placeholderMat);
       if (item.position) placeholder.position.set(item.position[0], item.position[1], item.position[2]);
       experienceGroup.add(placeholder);
 
+      let active = true;
+      const spinRing = () => {
+        if (!active) return;
+        placeholder.rotation.z += 0.05;
+        requestAnimationFrame(spinRing);
+      };
+      spinRing();
+
       try {
         const renderable = await createModelItem(item);
+        active = false;
         experienceGroup.remove(placeholder);
         placeholderGeo.dispose();
         placeholderMat.dispose();
@@ -152,18 +166,25 @@ export class ExperienceManager {
         animateIn();
         renderable.play?.();
       } catch (err) {
+        active = false;
         console.error(`Error loading model for target ${targetId}:`, err);
         experienceGroup.remove(placeholder);
+        placeholderGeo.dispose();
+        placeholderMat.dispose();
       }
     });
 
-    // Execute background asset downloads
-    Promise.all([...parallelMediaPromises, ...modelPromises]).catch(console.error);
+    let markLoaded: () => void = () => {};
+    const whenLoaded = new Promise<void>((resolve) => {
+      markLoaded = resolve;
+    });
 
     const loadedExp: LoadedExperience = {
       targetId,
       group: experienceGroup,
       items: loadedItems,
+      isLoaded: false,
+      whenLoaded,
       play: () => {
         loadedItems.forEach((i) => i.play?.());
       },
@@ -179,6 +200,22 @@ export class ExperienceManager {
         loadedItems.length = 0;
       }
     };
+
+    if (parallelMediaPromises.length === 0 && modelPromises.length === 0) {
+      loadedExp.isLoaded = true;
+      markLoaded();
+    } else {
+      Promise.all([...parallelMediaPromises, ...modelPromises])
+        .then(() => {
+          loadedExp.isLoaded = true;
+          markLoaded();
+        })
+        .catch((err) => {
+          console.error(`Error loading assets for ${targetId}:`, err);
+          loadedExp.isLoaded = true;
+          markLoaded();
+        });
+    }
 
     this.putLRU(targetId, loadedExp);
     return loadedExp;

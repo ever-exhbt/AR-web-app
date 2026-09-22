@@ -64,13 +64,16 @@ export async function startPreview(
   scene.add(contentAnchorGroup);
 
   const experienceManager = new ExperienceManager(experiences, { maxCacheSize: 3 });
-  const loadedExp: LoadedExperience = await experienceManager.loadTargetExperience(activeId, contentAnchorGroup);
+  const heading = expConfig?.infoCard?.heading || `Ever WebAR: ${activeId}`;
+  const body = expConfig?.infoCard?.body || `Preview mode active. Dimensions: ${target?.width}x${target?.height}.`;
 
-  // Show Found Info Card
-  screens.showFound(
-    expConfig?.infoCard?.heading || `Ever WebAR: ${activeId}`,
-    expConfig?.infoCard?.body || `Preview mode active. Dimensions: ${target?.width}x${target?.height}.`
-  );
+  // Show loading spinner while preview assets buffer
+  screens.showFound(heading, body, false);
+
+  const loadedExp: LoadedExperience = await experienceManager.loadTargetExperience(activeId, contentAnchorGroup);
+  loadedExp.whenLoaded.then(() => {
+    screens.showFound(heading, body, true);
+  });
 
   // Orbital touch/mouse interaction
   let isDragging = false;

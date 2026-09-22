@@ -32,6 +32,10 @@ export class ScreenController {
   private elErrorActionBtn = document.getElementById('btn-error-action') as HTMLButtonElement;
   private elErrorPreviewBtn = document.getElementById('btn-error-preview') as HTMLButtonElement;
 
+  // Target asset loading spinner
+  private elAssetSpinner = document.getElementById('target-asset-spinner') as HTMLElement | null;
+  private elSpinnerText = document.getElementById('spinner-text') as HTMLElement | null;
+
   private currentState: ScreenState = 'landing';
 
   constructor() {
@@ -84,9 +88,10 @@ export class ScreenController {
   }
 
   /**
-   * Displays the Found State (Camera fills 100% full-bleed, sleek info card shown)
+   * Displays the Found State (Camera fills 100% full-bleed, sleek info card shown).
+   * If isFullyLoaded is false, triggers the asset loading spinner HUD while displaying target info.
    */
-  public showFound(title: string, body: string) {
+  public showFound(title: string, body: string, isFullyLoaded: boolean = true) {
     this.currentState = 'found';
     // Scanning box disappears completely -> 100% camera feed immersion
     this.elScanning.classList.add('hidden');
@@ -96,11 +101,39 @@ export class ScreenController {
     const headingEl = document.getElementById('card-heading');
     const bodyEl = document.getElementById('card-body');
     if (headingEl) headingEl.textContent = title;
-    if (bodyEl) bodyEl.textContent = body;
+
+    if (!isFullyLoaded) {
+      if (bodyEl) bodyEl.textContent = 'Loading augmented content...';
+      this.showAssetLoading('Loading AR content...');
+      this.setStatus('LOADING...', 'scanning');
+      this.announce(`Target found: ${title}. Loading content.`);
+    } else {
+      if (bodyEl) bodyEl.textContent = body;
+      this.hideAssetLoading();
+      this.setStatus('TARGET FOUND', 'locked');
+      this.announce(`Target locked: ${title}`);
+    }
 
     this.elFoundCard.classList.remove('hidden');
-    this.setStatus('TARGET FOUND', 'locked');
-    this.announce(`Target locked: ${title}`);
+  }
+
+  /**
+   * Shows the dedicated asset loading spinner HUD
+   */
+  public showAssetLoading(message: string = 'Loading AR content...') {
+    if (this.elAssetSpinner) {
+      if (this.elSpinnerText) this.elSpinnerText.textContent = message;
+      this.elAssetSpinner.classList.remove('hidden');
+    }
+  }
+
+  /**
+   * Hides the asset loading spinner HUD
+   */
+  public hideAssetLoading() {
+    if (this.elAssetSpinner) {
+      this.elAssetSpinner.classList.add('hidden');
+    }
   }
 
   /**
@@ -108,6 +141,7 @@ export class ScreenController {
    */
   public showLost() {
     if (this.currentState === 'error') return;
+    this.hideAssetLoading();
     this.elFoundCard.classList.add('hidden');
     this.elScanning.classList.remove('hidden');
     this.setStatus('SCANNING...', 'scanning');
@@ -222,6 +256,7 @@ export class ScreenController {
   }
 
   private hideAll() {
+    this.hideAssetLoading();
     this.elLanding.classList.add('hidden');
     this.elScanning.classList.add('hidden');
     this.elFoundCard.classList.add('hidden');

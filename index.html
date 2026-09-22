@@ -65,6 +65,12 @@
           <div class="scan-prompt">Point camera at target</div>
         </div>
 
+        <!-- Target Asset Loading Spinner (Shown when target is found but assets are still loading) -->
+        <div id="target-asset-spinner" class="target-asset-spinner hidden" role="status" aria-live="polite">
+          <div class="spinner-disc" aria-hidden="true"></div>
+          <span id="spinner-text" class="spinner-text">Loading AR content...</span>
+        </div>
+
         <!-- Found Info Card Overlay (Sleek, Non-Intrusive, No External Links) -->
         <aside id="info-card-container" class="info-card-container hidden interactive" aria-label="Target information">
           <div class="info-card">

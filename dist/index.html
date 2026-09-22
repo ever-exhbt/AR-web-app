@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <title>Ever WebAR — Image Tracking</title>
     <meta name="description" content="Mobile-first WebAR image tracking powered by MindAR-JS and Three.js." />
-    <script type="module" crossorigin src="/assets/index-DQCb1WhM.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-C2ULhsnO.css">
+    <script type="module" crossorigin src="/assets/index-BX7f6EXM.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D1ihc4pV.css">
   </head>
   <body>
     <!-- Screen reader live announcer -->
@@ -64,6 +64,12 @@
             <div class="scan-laser"></div>
           </div>
           <div class="scan-prompt">Point camera at target</div>
+        </div>
+
+        <!-- Target Asset Loading Spinner (Shown when target is found but assets are still loading) -->
+        <div id="target-asset-spinner" class="target-asset-spinner hidden" role="status" aria-live="polite">
+          <div class="spinner-disc" aria-hidden="true"></div>
+          <span id="spinner-text" class="spinner-text">Loading AR content...</span>
         </div>
 
         <!-- Found Info Card Overlay (Sleek, Non-Intrusive, No External Links) -->

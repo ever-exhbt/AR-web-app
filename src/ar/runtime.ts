@@ -110,19 +110,28 @@ export async function startCameraAR(
 
     anchor.onTargetFound = async () => {
       currentTrackedTarget = target.id;
-      // 100% full-bleed camera feed immersion
-      screens.showFound(
-        expConfig?.infoCard?.heading || `Ever WebAR: ${target.id}`,
-        expConfig?.infoCard?.body || `Anchor #${anchorIndex} locked. 3D augmentation active.`
-      );
       onTargetChange(target.id, anchorIndex);
 
       stabilizer.reset();
       presentationGroup.visible = true;
 
+      const heading = expConfig?.infoCard?.heading || `Ever WebAR: ${target.id}`;
+      const body = expConfig?.infoCard?.body || `Anchor #${anchorIndex} locked. 3D augmentation active.`;
+      const isReady = experienceManager.hasTargetLoaded(target.id);
+
+      // Show Found state (with loading spinner if assets are still buffering/downloading)
+      screens.showFound(heading, body, isReady);
+
       // Strict per-target lazy loading + progressive reveal
       const loadedExp = await experienceManager.loadTargetExperience(target.id, presentationGroup);
       activeLoadedExperiences.set(target.id, loadedExp);
+
+      // When all assets finish loading, update UI to fully locked state
+      loadedExp.whenLoaded.then(() => {
+        if (currentTrackedTarget === target.id) {
+          screens.showFound(heading, body, true);
+        }
+      });
     };
 
     anchor.onTargetLost = () => {
