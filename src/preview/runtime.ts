@@ -70,7 +70,13 @@ export async function startPreview(
   // Show loading spinner while preview assets buffer
   screens.showFound(heading, body, false);
 
-  const loadedExp: LoadedExperience = await experienceManager.loadTargetExperience(activeId, contentAnchorGroup);
+  const loadedExp: LoadedExperience = await experienceManager.loadTargetExperience(
+    activeId,
+    contentAnchorGroup,
+    (_percent, message) => {
+      screens.showAssetLoading(message);
+    }
+  );
   loadedExp.whenLoaded.then(() => {
     screens.showFound(heading, body, true);
   });

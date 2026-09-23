@@ -123,10 +123,18 @@ export async function startCameraAR(
       screens.showFound(heading, body, isReady);
 
       // Strict per-target lazy loading + progressive reveal
-      const loadedExp = await experienceManager.loadTargetExperience(target.id, presentationGroup);
+      const loadedExp = await experienceManager.loadTargetExperience(
+        target.id,
+        presentationGroup,
+        (_percent, message) => {
+          if (currentTrackedTarget === target.id && !experienceManager.hasTargetLoaded(target.id)) {
+            screens.showAssetLoading(message);
+          }
+        }
+      );
       activeLoadedExperiences.set(target.id, loadedExp);
 
-      // When all assets finish loading, update UI to fully locked state
+      // When all chunks in all target assets finish loading, transition UI to fully locked state
       loadedExp.whenLoaded.then(() => {
         if (currentTrackedTarget === target.id) {
           screens.showFound(heading, body, true);

@@ -1,13 +1,29 @@
 import * as THREE from 'three';
 import { VideoItem, RenderableItem } from './types.js';
 import { resolveAssetUrl } from '../utils/assets.js';
+import { loadAssetChunks, ChunkProgressCallback, LoadedChunkAsset } from '../utils/chunk-loader.js';
 
-export async function createVideoItem(item: VideoItem): Promise<RenderableItem> {
+export async function createVideoItem(
+  item: VideoItem,
+  onProgress?: ChunkProgressCallback
+): Promise<RenderableItem> {
   const group = new THREE.Group();
+  const rawVideoUrl = resolveAssetUrl(item.src);
+
+  // 1. Download all chunks of the target video asset first
+  let chunkAsset: LoadedChunkAsset | null = null;
+  let videoSrc = rawVideoUrl;
+
+  try {
+    chunkAsset = await loadAssetChunks(rawVideoUrl, onProgress);
+    videoSrc = chunkAsset.blobUrl;
+  } catch (err) {
+    console.warn(`[item-video] Chunk streaming fallback for '${rawVideoUrl}':`, err);
+  }
 
   // Create video element
   const video = document.createElement('video');
-  video.src = resolveAssetUrl(item.src);
+  video.src = videoSrc;
   video.crossOrigin = 'anonymous';
   video.playsInline = true;
   video.muted = true;
@@ -60,7 +76,7 @@ export async function createVideoItem(item: VideoItem): Promise<RenderableItem> 
     }
   });
 
-  // Wait for initial video data so the video texture is ready
+  // Wait for initial video frame data so the video texture is ready
   if (video.readyState < 2) {
     await new Promise<void>((resolve) => {
       let resolved = false;
@@ -118,6 +134,7 @@ export async function createVideoItem(item: VideoItem): Promise<RenderableItem> 
       videoMat.dispose();
       videoTexture.dispose();
       if (posterTexture) posterTexture.dispose();
+      if (chunkAsset) chunkAsset.dispose();
     }
   };
 }

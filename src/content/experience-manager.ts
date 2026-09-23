@@ -45,7 +45,8 @@ export class ExperienceManager {
    */
   public async loadTargetExperience(
     targetId: string,
-    anchorGroup: THREE.Group
+    anchorGroup: THREE.Group,
+    onProgress?: (percent: number, message: string) => void
   ): Promise<LoadedExperience> {
     const startTime = performance.now();
 
@@ -110,23 +111,60 @@ export class ExperienceManager {
       this.onTimeMeasured(targetId, Math.round(performance.now() - startTime));
     }
 
-    // Stage 2 & 3: Load image and video streams in parallel
+    // Chunk progress tracker across all downloadable assets for this target
+    const assetProgressMap = new Map<string, { loaded: number; total: number }>();
+    const notifyChunkProgress = () => {
+      if (!onProgress) return;
+      let totalLoaded = 0;
+      let totalExpected = 0;
+      let hasIndeterminate = false;
+
+      for (const p of assetProgressMap.values()) {
+        totalLoaded += p.loaded;
+        if (p.total > 0) {
+          totalExpected += p.total;
+        } else {
+          hasIndeterminate = true;
+        }
+      }
+
+      if (totalExpected > 0 && !hasIndeterminate) {
+        const percent = Math.min(100, Math.round((totalLoaded / totalExpected) * 100));
+        onProgress(percent, `Loading AR content... ${percent}%`);
+      } else if (totalLoaded > 0) {
+        const mb = (totalLoaded / (1024 * 1024)).toFixed(1);
+        onProgress(-1, `Loading AR content... (${mb} MB)`);
+      } else {
+        onProgress(-1, 'Loading AR content...');
+      }
+    };
+
+    // Stage 2 & 3: Load image and video streams in parallel (all chunks streamed)
     const parallelMediaPromises = [
-      ...imageItems.map(async (item) => {
-        const renderable = await createImageItem(item);
+      ...imageItems.map(async (item, idx) => {
+        const key = `img_${idx}`;
+        const renderable = await createImageItem(item, (p) => {
+          assetProgressMap.set(key, { loaded: p.loaded, total: p.total });
+          notifyChunkProgress();
+        });
         experienceGroup.add(renderable.object3d);
         loadedItems.push(renderable);
       }),
-      ...videoItems.map(async (item) => {
-        const renderable = await createVideoItem(item);
+      ...videoItems.map(async (item, idx) => {
+        const key = `vid_${idx}`;
+        const renderable = await createVideoItem(item, (p) => {
+          assetProgressMap.set(key, { loaded: p.loaded, total: p.total });
+          notifyChunkProgress();
+        });
         experienceGroup.add(renderable.object3d);
         loadedItems.push(renderable);
         renderable.play?.();
       })
     ];
 
-    // Stage 4: Load 3D models (with temporary on-anchor indicator)
-    const modelPromises = modelItems.map(async (item) => {
+    // Stage 4: Load 3D models (with temporary on-anchor indicator, all chunks streamed)
+    const modelPromises = modelItems.map(async (item, idx) => {
+      const key = `model_${idx}`;
       // Small on-anchor spinning ring marker until model arrives
       const placeholderGeo = new THREE.RingGeometry(0.07, 0.09, 32);
       const placeholderMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide });
@@ -143,7 +181,10 @@ export class ExperienceManager {
       spinRing();
 
       try {
-        const renderable = await createModelItem(item);
+        const renderable = await createModelItem(item, (p) => {
+          assetProgressMap.set(key, { loaded: p.loaded, total: p.total });
+          notifyChunkProgress();
+        });
         active = false;
         experienceGroup.remove(placeholder);
         placeholderGeo.dispose();

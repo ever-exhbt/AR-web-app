@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { ModelItem, RenderableItem } from './types.js';
 import { resolveAssetUrl } from '../utils/assets.js';
+import { loadAssetChunks, ChunkProgressCallback, LoadedChunkAsset } from '../utils/chunk-loader.js';
 
 let sharedLoader: GLTFLoader | null = null;
 
@@ -13,17 +14,41 @@ async function getGLTFLoader(): Promise<GLTFLoader> {
   return sharedLoader;
 }
 
-export async function createModelItem(item: ModelItem): Promise<RenderableItem> {
+export async function createModelItem(
+  item: ModelItem,
+  onProgress?: ChunkProgressCallback
+): Promise<RenderableItem> {
   const loader = await getGLTFLoader();
   const modelUrl = resolveAssetUrl(item.src);
 
+  let chunkAsset: LoadedChunkAsset | null = null;
+  let arrayBuffer: ArrayBuffer | null = null;
+
+  try {
+    chunkAsset = await loadAssetChunks(modelUrl, onProgress);
+    arrayBuffer = await chunkAsset.arrayBuffer();
+  } catch (err) {
+    console.warn(`[item-model] Chunk streaming fallback for '${modelUrl}':`, err);
+  }
+
   const gltf = await new Promise<any>((resolve, reject) => {
-    loader.load(
-      modelUrl,
-      (g) => resolve(g),
-      undefined,
-      (err) => reject(new Error(`Failed to load 3D model '${modelUrl}': ${err}`))
-    );
+    if (arrayBuffer) {
+      // Parse directly from fully downloaded binary chunks
+      const resourcePath = modelUrl.substring(0, modelUrl.lastIndexOf('/') + 1);
+      loader.parse(
+        arrayBuffer,
+        resourcePath,
+        (g) => resolve(g),
+        (err) => reject(new Error(`Failed to parse 3D model '${modelUrl}': ${err}`))
+      );
+    } else {
+      loader.load(
+        modelUrl,
+        (g) => resolve(g),
+        undefined,
+        (err) => reject(new Error(`Failed to load 3D model '${modelUrl}': ${err}`))
+      );
+    }
   });
 
   const modelRoot = gltf.scene as THREE.Group;
@@ -116,6 +141,7 @@ export async function createModelItem(item: ModelItem): Promise<RenderableItem> 
           }
         }
       });
+      if (chunkAsset) chunkAsset.dispose();
     }
   };
 }

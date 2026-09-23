@@ -1,14 +1,27 @@
 import * as THREE from 'three';
 import { ImageItem, RenderableItem } from './types.js';
 import { resolveAssetUrl } from '../utils/assets.js';
+import { loadAssetChunks, ChunkProgressCallback, LoadedChunkAsset } from '../utils/chunk-loader.js';
 
-export async function createImageItem(item: ImageItem): Promise<RenderableItem> {
-  const loader = new THREE.TextureLoader();
+export async function createImageItem(
+  item: ImageItem,
+  onProgress?: ChunkProgressCallback
+): Promise<RenderableItem> {
   const imageUrl = resolveAssetUrl(item.src);
+  let chunkAsset: LoadedChunkAsset | null = null;
+  let targetUrl = imageUrl;
 
+  try {
+    chunkAsset = await loadAssetChunks(imageUrl, onProgress);
+    targetUrl = chunkAsset.blobUrl;
+  } catch (err) {
+    console.warn(`[item-image] Chunk streaming fallback for '${imageUrl}':`, err);
+  }
+
+  const loader = new THREE.TextureLoader();
   const texture = await new Promise<THREE.Texture>((resolve, reject) => {
     loader.load(
-      imageUrl,
+      targetUrl,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         resolve(tex);
@@ -54,6 +67,7 @@ export async function createImageItem(item: ImageItem): Promise<RenderableItem> 
       geometry.dispose();
       material.dispose();
       texture.dispose();
+      if (chunkAsset) chunkAsset.dispose();
     }
   };
 }
